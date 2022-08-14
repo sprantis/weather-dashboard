@@ -23,6 +23,15 @@ async function loadLatLon() {
   return latLonData;
 }
 
+async function loadUVI(lat,lon){
+  let uviKey = '1bfd9ae7ce69911e90bd1495a7f9ef63';
+  let uviURL = `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&appid=${uviKey}`;
+  const response = await fetch(uviURL);
+  const uviData = await response.json();
+
+  return uviData;
+}
+
 // This function fetches and loads current weather data to page.
 let fetchWeather = function (lat, lon){
     let weatherKey = '6dbc49a4b8c7ccf14f99179edf5da007'
@@ -35,6 +44,7 @@ let fetchWeather = function (lat, lon){
       .then(data => {
             weatherData = data;
             console.log(weatherData);
+            displayCurrent(weatherData);
       })
       .catch(function (error) {
         alert('Unable to grab weather data. Error: ' + error);
@@ -53,18 +63,20 @@ let fetchFiveDay = function(lat, lon){
         .then(data => {
           forecastData = data.list
           console.log(forecastData);
+          displayForecast(forecastData);
         })
         .catch(function (error) {
+            console.log(error)
             alert('Unable to grab forecast data. Error: ' + error);
         });
 }
 
 // Add event listener: when searchBtn is clicked, grab lat and lon values, and call functions to fetch current weather and forecast data
-searchBtn.addEventListener("click", async () => {
+searchBtn.addEventListener("click", async (event) => {
+  event.preventDefault();
   let resultArray = [];
 
   try {
-    //  latLon = await loadLatLon();
     resultArray = await loadLatLon()
     let latLon = {lat: resultArray[0].lat, lon: resultArray[0].lon}
     console.log(latLon);
@@ -75,6 +87,86 @@ searchBtn.addEventListener("click", async () => {
     console.log("Error: "+ e)
   }
 })
+
+let kToF = function (kelvin){
+  return ((((kelvin - 273.15) * 9) / 5) + 32).toFixed(2); 
+};
+
+let displayCurrent = async function (dataInput){
+  let currentContainer = document.getElementById("current-container");
+
+  let name = document.createElement('div');
+  name.innerHTML = dataInput.name;
+  currentContainer.append(name);
+
+  let date = document.createElement('div')
+  date.innerHTML = moment().format('L');
+  currentContainer.append(date)
+
+  let iconId = dataInput.weather[0].icon;
+  let icon = document.createElement('img');
+  icon.setAttribute("src", `http://openweathermap.org/img/wn/${iconId}@2x.png`);
+  currentContainer.append(icon);
+
+  let temp = document.createElement('div');
+  temp.innerHTML = `Temp: ${kToF(dataInput.main.temp)};`
+  currentContainer.append(temp);
+
+  let humidity = document.createElement('div');
+  humidity.innerHTML = `Humidity: ${dataInput.main.humidity}`;
+  currentContainer.append(humidity);
+
+  let wind = document.createElement('div');
+  wind.innerHTML = `Wind Speed: ${dataInput.wind.speed}`;
+  currentContainer.append(wind);
+
+  // API call not working to fetch UVI from Open Weather API 3.0
+  // let uv = document.createElement('div')
+  // uv.innerHTML = await loadUVI(dataInput.coord.lat, dataInput.coord.lon);
+  // currentContainer.append(uv)
+}
+
+
+let displayForecast = function (dataInput){
+  // let forecastContainer = document.getElementById("forecast-container");
+
+  let forecastCounter = 7;
+  for (i=1; i<=5; i++){
+    let dayContainer = document.getElementById(`day${i}`);
+
+    let date = document.createElement('div');
+    date.innerHTML = moment().add(i, 'days').calendar(); 
+    dayContainer.append(date);
+    
+    let iconId = dataInput[forecastCounter].weather[0].icon;
+    let icon = document.createElement('img');
+    icon.setAttribute("src", `http://openweathermap.org/img/wn/${iconId}@2x.png`);
+    dayContainer.append(icon);
+
+    let temp = document.createElement('div');
+    let fahrenheit = kToF(dataInput[forecastCounter].main.temp);
+    temp.innerHTML = `Temp: ${fahrenheit}`;
+    dayContainer.append(temp);
+
+    let humidity = document.createElement('div');
+    humidity.innerHTML = `Humidity: ${dataInput[forecastCounter].main.humidity}`;
+    dayContainer.append(humidity);
+
+    let wind = document.createElement('div');
+    wind.innerHTML = `Wind Speed: ${dataInput[forecastCounter].wind.speed}`;
+    dayContainer.append(wind);
+
+    // 3 hour increments for OpenWeather API forecast reponse. Need to increase counter by 8 to equal a full 24 hours
+    forecastCounter+=8;
+
+  }
+}
+
+
+
+
+// moment.js for date
+// UV fetch call- will do later
 
 
 // function of Search History//
