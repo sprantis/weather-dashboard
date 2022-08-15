@@ -12,13 +12,9 @@ let recentSearchContainer = document.querySelector("#recent-search-container");
 let searchContainer = document.querySelector(".search-container");
 let searchInput = document.querySelector("#search-input");
 let getStorage = localStorage.getItem("recentSearch") || "[]";
-let recentSearchArray = [];
+let recentSearchArray = JSON.parse(getStorage);
 let forecastContainer = document.getElementById("forecast-container");
 let currentContainer = document.getElementById("current-container")
-
-// let previousSearch = function () {
-//   let previousCity = storageParse[0];
-// }
 
 // This function fetches latitude and longitude data and returns it
 // usage of async/wait and fetch from https://www.youtube.com/watch?v=Yp9KIcSKTNo
@@ -115,9 +111,22 @@ let displayCurrent = async function (dataInput){
   currentContainer.append(wind);
 
   // API call not working to fetch UVI from Open Weather API 3.0
-  // let uv = document.createElement('div')
-  // uv.innerHTML = await loadUVI(dataInput.coord.lat, dataInput.coord.lon);
-  // currentContainer.append(uv)
+  let uv = document.createElement('div');
+  let uvRes = await loadUVI(dataInput.coord.lat, dataInput.coord.lon);
+  let uviVal = uvRes.current.uvi;
+  uv.innerHTML = uviVal;
+  if (uviVal >= 0 && uviVal < 3){
+    uv.setAttribute("class", "uv-green");
+  } else if (uviVal >= 3 && uviVal < 6){
+      uv.setAttribute("class", "uv-yellow");
+  } else if (uviVal >= 6 && uviVal < 8){
+      uv.setAttribute("class", "uv-orange");
+  } else if (uviVal >= 8 && uviVal < 11){
+      uv.setAttribute("class", "uv-red");
+  } else {
+      uv.setAttribute("class", "uv-purple");
+  };
+  currentContainer.append(uv)
 }
 
 
@@ -169,6 +178,22 @@ let removeAllChildNodes = function (parent){
   }
 }
 
+// Below are three verions of similar functionality. May need to refactor later.
+
+let previousSearch = async function () {
+  removeAllChildNodes(currentContainer);
+  removeAllChildNodes(forecastContainer);
+  let resultArray = [];
+  try {
+    resultArray = await loadLatLon(recentSearchArray[0].city)
+    let latLon = {lat: resultArray[0].lat, lon: resultArray[0].lon}
+    fetchWeather(latLon.lat, latLon.lon);
+    fetchFiveDay(latLon.lat, latLon.lon);
+  } catch (e) {
+    console.log("Error: "+ e)
+  }
+}
+
 let populateSearchData = async function (event){
   event.preventDefault();
   removeAllChildNodes(currentContainer);
@@ -177,14 +202,11 @@ let populateSearchData = async function (event){
   try {
     resultArray = await loadLatLon(searchInput.value)
     let latLon = {lat: resultArray[0].lat, lon: resultArray[0].lon}
-    console.log(resultArray);
-    console.log(latLon);
     fetchWeather(latLon.lat, latLon.lon);
     fetchFiveDay(latLon.lat, latLon.lon);
 
     // localStorage code
     let oldSearch = {city: resultArray[0].name}
-    recentSearchArray = JSON.parse(getStorage);
     recentSearchArray.push(oldSearch)
     setStorage(recentSearchArray);
   } catch (e) {
@@ -207,7 +229,6 @@ let populateHistoricalData = async function (event){
 
     // localStorage code
     let oldSearch = {city: resultArray[0].name}
-    recentSearchArray = JSON.parse(getStorage);
     recentSearchArray.push(oldSearch)
     setStorage(recentSearchArray);
   } catch (e) {
@@ -233,15 +254,17 @@ let setStorage = function (array) {
 
 let clearHistory = function () {
   localStorage.clear();
+  removeAllChildNodes(recentSearchContainer);
 };
 
-// Add event listener: when searchBtn is clicked, grab lat and lon values, and call functions to fetch current weather and forecast data
-console.log(historyBtn)
+clearHistoryBtn.addEventListener("click", clearHistory);
 
-clearHistoryBtn.addEventListener("click", clearHistory)
+searchBtn.addEventListener("click", populateSearchData);
 
 showSearchHistory();
 
+previousSearch();
 
-
-searchBtn.addEventListener("click", populateSearchData)
+// Still need:
+// popoulate UV data for current weather with if conditional to determine color
+// Populate historical results immediately after fetching for them in side bar

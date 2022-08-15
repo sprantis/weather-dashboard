@@ -9,3 +9,31 @@
     border-color: white;
     border-radius: 10px;
 }
+
+.uv-green {
+    background-color: green;
+    color: white;
+    width: 60px;
+}
+
+.uv-yellow {
+    background-color: yellow;
+    width: 60px;
+}
+
+.uv-orange {
+    background-color: orange;
+    width: 60px;
+}
+
+.uv-red {
+    background-color: red;
+    color: white;
+    width: 60px;
+}
+
+.uv-purple {
+    background-color: purple;
+    color: white;
+    width: 60px;
+}
