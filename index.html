@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/css/bootstrap.min.css">
-    <link rel="stylesheet" src="./assets/style.css">
+    <link rel="stylesheet" href="./assets/style.css">
     <title>Weather Dashboard</title>
 </head>
       <div>
@@ -16,29 +16,20 @@
               <form id="search-form">
                 <label for="searchCity">Search for a city:</label>
                 <input type="text" id="search-input" name="searchCity" class="search-input">
-                <button id="search-btn">Search</button>
               </form>
+              <button id="search-btn">Search</button>
+              <span>
+                <button id="clear-history">Clear History</button>
+              </span>
             </div>
             <div id="recent-search-container">
-              <div>Search History 1</div>
-              <div>Search History 2</div>
-              <div>Search History 3</div>
-              <div>Search History 4</div>
-              <div>Search History 5</div>
             </div>
           </div>
           <div id="main-content" class="col-9">
             <h2>Today's Weather</h2>
-            <div id="current-container"></div>       
+            <div id="current-container"></div> 
+            <h2>5-Day Forecast</h2>      
             <div id="forecast-container">
-              <h2>5-Day Forecast</h2>
-              <div class="row">
-                <div id="day1"></div>
-                <div id="day2"></div>
-                <div id="day3"></div>
-                <div id="day4"></div>
-                <div id="day5"></div>
-              </div>
           </div> 
         </div>
         

@@ -6,14 +6,25 @@
 // Defined Variables//
 let searchForm = document.querySelector("#search-form");
 let searchBtn = document.querySelector("#search-btn");
-let searchHistory = document.querySelector(".list-group");
+let historyBtn = document.querySelector(".history-item");
+let clearHistoryBtn = document.querySelector("#clear-history")
+let recentSearchContainer = document.querySelector("#recent-search-container");
 let searchContainer = document.querySelector(".search-container");
 let searchInput = document.querySelector("#search-input");
+let getStorage = localStorage.getItem("recentSearch") || "[]";
+let recentSearchArray = [];
+let forecastContainer = document.getElementById("forecast-container");
+let currentContainer = document.getElementById("current-container")
+
+// let previousSearch = function () {
+//   let previousCity = storageParse[0];
+// }
 
 // This function fetches latitude and longitude data and returns it
 // usage of async/wait and fetch from https://www.youtube.com/watch?v=Yp9KIcSKTNo
-async function loadLatLon() {
-  let cityName = searchInput.value;
+async function loadLatLon(cityNameValue) {
+  // let cityName = searchInput.value;
+  let cityName = cityNameValue;
   let latKey = '73dc2b7a96e932f4bffbe268927875ae';
   let latURL = `http://api.openweathermap.org/geo/1.0/direct?q=${cityName}&limit=10&appid=${latKey}`;
 
@@ -71,23 +82,6 @@ let fetchFiveDay = function(lat, lon){
         });
 }
 
-// Add event listener: when searchBtn is clicked, grab lat and lon values, and call functions to fetch current weather and forecast data
-searchBtn.addEventListener("click", async (event) => {
-  event.preventDefault();
-  let resultArray = [];
-
-  try {
-    resultArray = await loadLatLon()
-    let latLon = {lat: resultArray[0].lat, lon: resultArray[0].lon}
-    console.log(latLon);
-    fetchWeather(latLon.lat, latLon.lon);
-    fetchFiveDay(latLon.lat, latLon.lon);
-
-  } catch (e) {
-    console.log("Error: "+ e)
-  }
-})
-
 let kToF = function (kelvin){
   return ((((kelvin - 273.15) * 9) / 5) + 32).toFixed(2); 
 };
@@ -128,11 +122,15 @@ let displayCurrent = async function (dataInput){
 
 
 let displayForecast = function (dataInput){
-  // let forecastContainer = document.getElementById("forecast-container");
+  let rowDiv = document.createElement("div")
+  rowDiv.setAttribute("class", "row")
+  forecastContainer.append(rowDiv)
 
   let forecastCounter = 7;
   for (i=1; i<=5; i++){
-    let dayContainer = document.getElementById(`day${i}`);
+    // let dayContainer = document.getElementById(`day${i}`);
+    let dayContainer = document.createElement("div");
+    dayContainer.setAttribute("id", `day${i}`)
 
     let date = document.createElement('div');
     date.innerHTML = moment().add(i, 'days').calendar(); 
@@ -156,33 +154,94 @@ let displayForecast = function (dataInput){
     wind.innerHTML = `Wind Speed: ${dataInput[forecastCounter].wind.speed}`;
     dayContainer.append(wind);
 
+    rowDiv.append(dayContainer);
+
     // 3 hour increments for OpenWeather API forecast reponse. Need to increase counter by 8 to equal a full 24 hours
     forecastCounter+=8;
 
   }
 }
 
+// Using code reference from https://www.javascripttutorial.net/dom/manipulating/remove-all-child-nodes/
+let removeAllChildNodes = function (parent){
+  while(parent.firstChild){
+    parent.removeChild(parent.firstChild)
+  }
+}
+
+let populateSearchData = async function (event){
+  event.preventDefault();
+  removeAllChildNodes(currentContainer);
+  removeAllChildNodes(forecastContainer);
+  let resultArray = [];
+  try {
+    resultArray = await loadLatLon(searchInput.value)
+    let latLon = {lat: resultArray[0].lat, lon: resultArray[0].lon}
+    console.log(resultArray);
+    console.log(latLon);
+    fetchWeather(latLon.lat, latLon.lon);
+    fetchFiveDay(latLon.lat, latLon.lon);
+
+    // localStorage code
+    let oldSearch = {city: resultArray[0].name}
+    recentSearchArray = JSON.parse(getStorage);
+    recentSearchArray.push(oldSearch)
+    setStorage(recentSearchArray);
+  } catch (e) {
+    console.log("Error: "+ e)
+  }
+}
+
+let populateHistoricalData = async function (event){
+  event.preventDefault();
+  removeAllChildNodes(currentContainer);
+  removeAllChildNodes(forecastContainer);
+  let resultArray = [];
+  try {
+    resultArray = await loadLatLon(this.textContent)
+    let latLon = {lat: resultArray[0].lat, lon: resultArray[0].lon}
+    console.log(resultArray);
+    console.log(latLon);
+    fetchWeather(latLon.lat, latLon.lon);
+    fetchFiveDay(latLon.lat, latLon.lon);
+
+    // localStorage code
+    let oldSearch = {city: resultArray[0].name}
+    recentSearchArray = JSON.parse(getStorage);
+    recentSearchArray.push(oldSearch)
+    setStorage(recentSearchArray);
+  } catch (e) {
+    console.log("Error: "+ e)
+  }
+}
+
+let showSearchHistory = function () {
+  let historyArray = JSON.parse(getStorage);
+  for (i = 0; i < historyArray.length; i++){
+    let historyItem = document.createElement('div');
+    historyItem.setAttribute("class", "history-item");
+    historyItem.textContent = historyArray[i].city;
+    historyItem.addEventListener("click", populateHistoricalData);
+    console.log(historyItem, historyArray);
+    recentSearchContainer.append(historyItem);
+  }
+};
+
+let setStorage = function (array) {
+  localStorage.setItem("recentSearch", JSON.stringify(array));
+};
+
+let clearHistory = function () {
+  localStorage.clear();
+};
+
+// Add event listener: when searchBtn is clicked, grab lat and lon values, and call functions to fetch current weather and forecast data
+console.log(historyBtn)
+
+clearHistoryBtn.addEventListener("click", clearHistory)
+
+showSearchHistory();
 
 
 
-// moment.js for date
-// UV fetch call- will do later
-
-
-// function of Search History//
-
-
-// fiveDay provides 40 objects, one every 3 hours
-// 1 day = 24 hours
-// [0] === Current Day 00:00
-// [1] === Current Day 03:00
-// [2] === Current Day 06:00
-// ------
-// [8] === Forecast Day 1 00:00
-// [16] === Forecast Day 2 00:00
-// [24] === Forecast Day 3 00:00
-// [32] === Forecast Day 4 00:00
-// [40] === Forecast Day 5 00:00
-
-
-// 40 objects. Every 8th object is a new day
+searchBtn.addEventListener("click", populateSearchData)

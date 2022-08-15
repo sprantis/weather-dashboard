@@ -1,0 +1,11 @@
+.history-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(0, 149, 255);
+    height: 45px;
+    width: 180px;
+    border: solid 5px;
+    border-color: white;
+    border-radius: 10px;
+}
