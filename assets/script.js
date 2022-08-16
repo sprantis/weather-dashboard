@@ -84,30 +84,39 @@ let kToF = function (kelvin){
 
 let displayCurrent = async function (dataInput){
   let currentContainer = document.getElementById("current-container");
+  currentContainer.setAttribute("class", "col-3 mx-auto my-4")
 
   let name = document.createElement('div');
   name.innerHTML = dataInput.name;
+  name.setAttribute("class", "mx-5");
   currentContainer.append(name);
 
   let date = document.createElement('div')
   date.innerHTML = moment().format('L');
+  date.setAttribute("class", "mx-5");
   currentContainer.append(date)
 
   let iconId = dataInput.weather[0].icon;
   let icon = document.createElement('img');
+  let iconSpan = document.createElement('span');
   icon.setAttribute("src", `http://openweathermap.org/img/wn/${iconId}@2x.png`);
-  currentContainer.append(icon);
+  icon.setAttribute("class", "mx-5");
+  iconSpan.append(icon);
+  currentContainer.append(iconSpan);
 
   let temp = document.createElement('div');
   temp.innerHTML = `Temp: ${kToF(dataInput.main.temp)};`
+  temp.setAttribute("class", "mx-5");
   currentContainer.append(temp);
 
   let humidity = document.createElement('div');
   humidity.innerHTML = `Humidity: ${dataInput.main.humidity}`;
+  humidity.setAttribute("class", "mx-5");
   currentContainer.append(humidity);
 
   let wind = document.createElement('div');
   wind.innerHTML = `Wind Speed: ${dataInput.wind.speed}`;
+  wind.setAttribute("class", "mx-5");
   currentContainer.append(wind);
 
   // Referencing https://www.epa.gov/sunsafety/uv-index-scale-0 for UV index scale
@@ -116,15 +125,15 @@ let displayCurrent = async function (dataInput){
   let uviVal = uvRes.current.uvi;
   uv.innerHTML = uviVal;
   if (uviVal >= 0 && uviVal < 3){
-    uv.setAttribute("class", "uv-green");
+    uv.setAttribute("class", "uv-green mx-5");
   } else if (uviVal >= 3 && uviVal < 6){
-      uv.setAttribute("class", "uv-yellow");
+      uv.setAttribute("class", "uv-yellow mx-5");
   } else if (uviVal >= 6 && uviVal < 8){
-      uv.setAttribute("class", "uv-orange");
+      uv.setAttribute("class", "uv-orange mx-5");
   } else if (uviVal >= 8 && uviVal < 11){
-      uv.setAttribute("class", "uv-red");
+      uv.setAttribute("class", "uv-red mx-5");
   } else {
-      uv.setAttribute("class", "uv-purple");
+      uv.setAttribute("class", "uv-purple mx-5");
   };
   currentContainer.append(uv)
 }
@@ -139,15 +148,18 @@ let displayForecast = function (dataInput){
   for (i=1; i<=5; i++){
     // let dayContainer = document.getElementById(`day${i}`);
     let dayContainer = document.createElement("div");
-    dayContainer.setAttribute("id", `day${i}`)
+    dayContainer.setAttribute("id", `day${i}`);
+    dayContainer.setAttribute("class", "mx-4 my-4")
 
     let date = document.createElement('div');
-    date.innerHTML = moment().add(i, 'days').calendar(); 
+    let currentDate = moment();
+    date.innerHTML = moment().add(i, 'days').format('MM/DD/YYYY')
     dayContainer.append(date);
     
     let iconId = dataInput[forecastCounter].weather[0].icon;
     let icon = document.createElement('img');
     icon.setAttribute("src", `http://openweathermap.org/img/wn/${iconId}@2x.png`);
+
     dayContainer.append(icon);
 
     let temp = document.createElement('div');

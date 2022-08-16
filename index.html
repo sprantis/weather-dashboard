@@ -9,10 +9,10 @@
     <title>Weather Dashboard</title>
 </head>
       <div>
-        <div class="jumbotron d-flex justify-content-center">Weather Dashboard</div>
+        <div class="jumbotron d-flex justify-content-center jumbo">Weather Dashboard</div>
         <div class="row">
           <div id="sidebar" class="col-3">
-            <div id="search-container">
+            <div id="search-container" class="mx-4">
               <form id="search-form">
                 <label for="searchCity">Search for a city:</label>
                 <input type="text" id="search-input" name="searchCity" class="search-input">
@@ -22,14 +22,20 @@
                 <button id="clear-history">Clear History</button>
               </span>
             </div>
-            <div id="recent-search-container">
+            <div id="recent-search-container" class="mx-4">
             </div>
           </div>
           <div id="main-content" class="col-9">
-            <h2>Today's Weather</h2>
-            <div id="current-container"></div> 
-            <h2>5-Day Forecast</h2>      
-            <div id="forecast-container">
+            <div class="border1">
+              <h2>Today's Weather</h2>
+              <div>
+                <div id="current-container"></div> 
+              </div>
+            </div>
+            <div class="border1">
+              <h2>5-Day Forecast</h2>      
+              <div id="forecast-container" class="d-flex justify-content-center"></div>
+            </div>
           </div> 
         </div>
         
