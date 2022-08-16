@@ -22,7 +22,7 @@ async function loadLatLon(cityNameValue) {
   // let cityName = searchInput.value;
   let cityName = cityNameValue;
   let latKey = '73dc2b7a96e932f4bffbe268927875ae';
-  let latURL = `http://api.openweathermap.org/geo/1.0/direct?q=${cityName}&limit=10&appid=${latKey}`;
+  let latURL = `https://api.openweathermap.org/geo/1.0/direct?q=${cityName}&limit=10&appid=${latKey}`;
 
   const response = await fetch(latURL);
   const latLonData = await response.json();
@@ -99,7 +99,7 @@ let displayCurrent = async function (dataInput){
   let iconId = dataInput.weather[0].icon;
   let icon = document.createElement('img');
   let iconSpan = document.createElement('span');
-  icon.setAttribute("src", `http://openweathermap.org/img/wn/${iconId}@2x.png`);
+  icon.setAttribute("src", `https://openweathermap.org/img/wn/${iconId}@2x.png`);
   icon.setAttribute("class", "mx-5");
   iconSpan.append(icon);
   currentContainer.append(iconSpan);
@@ -158,7 +158,7 @@ let displayForecast = function (dataInput){
     
     let iconId = dataInput[forecastCounter].weather[0].icon;
     let icon = document.createElement('img');
-    icon.setAttribute("src", `http://openweathermap.org/img/wn/${iconId}@2x.png`);
+    icon.setAttribute("src", `https://openweathermap.org/img/wn/${iconId}@2x.png`);
 
     dayContainer.append(icon);
 
