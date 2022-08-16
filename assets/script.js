@@ -110,7 +110,7 @@ let displayCurrent = async function (dataInput){
   wind.innerHTML = `Wind Speed: ${dataInput.wind.speed}`;
   currentContainer.append(wind);
 
-  // API call not working to fetch UVI from Open Weather API 3.0
+  // Referencing https://www.epa.gov/sunsafety/uv-index-scale-0 for UV index scale
   let uv = document.createElement('div');
   let uvRes = await loadUVI(dataInput.coord.lat, dataInput.coord.lon);
   let uviVal = uvRes.current.uvi;
@@ -207,9 +207,18 @@ let populateSearchData = async function (event){
 
     // localStorage code
     let oldSearch = {city: resultArray[0].name}
-    recentSearchArray.push(oldSearch)
+    recentSearchArray.unshift(oldSearch)
     setStorage(recentSearchArray);
+
+    // add history to side bar
+    let historyItem = document.createElement('div');
+    historyItem.setAttribute("class", "history-item");
+    historyItem.textContent = resultArray[0].name
+    historyItem.addEventListener("click", populateHistoricalData);
+    recentSearchContainer.prepend(historyItem);
+    searchInput.value = '';
   } catch (e) {
+    alert("Error: " + e)
     console.log("Error: "+ e)
   }
 }
@@ -229,22 +238,31 @@ let populateHistoricalData = async function (event){
 
     // localStorage code
     let oldSearch = {city: resultArray[0].name}
-    recentSearchArray.push(oldSearch)
+    recentSearchArray.unshift(oldSearch)
     setStorage(recentSearchArray);
+
+    // add history to side bar
+    let historyItem = document.createElement('div');
+    historyItem.setAttribute("class", "history-item");
+    historyItem.textContent = resultArray[0].name
+    historyItem.addEventListener("click", populateHistoricalData);
+    recentSearchContainer.prepend(historyItem);
+
   } catch (e) {
+    alert("Error: " + e)
     console.log("Error: "+ e)
   }
 }
 
 let showSearchHistory = function () {
   let historyArray = JSON.parse(getStorage);
-  for (i = 0; i < historyArray.length; i++){
+  for (i = historyArray.length - 1; i >= 0; i--){
     let historyItem = document.createElement('div');
     historyItem.setAttribute("class", "history-item");
     historyItem.textContent = historyArray[i].city;
     historyItem.addEventListener("click", populateHistoricalData);
     console.log(historyItem, historyArray);
-    recentSearchContainer.append(historyItem);
+    recentSearchContainer.prepend(historyItem);
   }
 };
 
@@ -261,10 +279,14 @@ clearHistoryBtn.addEventListener("click", clearHistory);
 
 searchBtn.addEventListener("click", populateSearchData);
 
+// Leverage enter key for inputs. Reference: https://stackoverflow.com/questions/155188/trigger-a-button-click-with-javascript-on-the-enter-key-in-a-text-box
+searchInput.addEventListener("keypress", function(event){
+  event.preventDefault();
+  if (event.keyCode == 13) {
+    searchBtn.click();
+  }
+})
+
 showSearchHistory();
 
 previousSearch();
-
-// Still need:
-// popoulate UV data for current weather with if conditional to determine color
-// Populate historical results immediately after fetching for them in side bar
