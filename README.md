@@ -1,5 +1,4 @@
-# weather-dashboard
-## Weather Dashboard
+# Weather Dashboard
 
 Deployed Link:
 [https://sprantis.github.io/weather-dashboard/]
